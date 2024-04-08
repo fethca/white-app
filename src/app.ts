@@ -2,7 +2,8 @@ import { Logger } from '@fethcat/logger'
 import cors from 'cors'
 import express, { json, urlencoded } from 'express'
 import helmet from 'helmet'
-import hpp from 'hpp'
+import { Server } from 'http'
+import { wait } from './helpers/utils.js'
 import { MainJob } from './jobs/MainJob.js'
 import { limiter } from './middlewares/limiter.js'
 import { logger } from './middlewares/logger.js'
@@ -11,18 +12,18 @@ import { store } from './services.js'
 import { Message, settings } from './settings.js'
 
 const { instanceId, logs, metadata } = settings
-const corsOptions = { origin: 'settings.cors.origin', optionsSuccessStatus: 200 }
 
 export class App {
-  logger = Logger.create<Message>(instanceId, logs, metadata)
+  protected logger = Logger.create<Message>(instanceId, logs, metadata)
 
   async run(dbUri: string): Promise<void> {
     const { success, failure } = this.logger.action('app_start')
     try {
       await this.initRedis()
       await this.initDb(dbUri)
+      const server = await this.startServer()
       void new MainJob().run()
-      process.on('SIGTERM', this.exit.bind(this))
+      process.on('SIGTERM', this.exit.bind(this, server))
       success()
     } catch (error) {
       failure(error)
@@ -46,6 +47,7 @@ export class App {
       // await mongoose.connect(dbUri, { dbName: settings.mongo.dbName })
       // await sequelize.authenticate()
       // await prisma.$connect()
+      await wait(10)
       success()
     } catch (error) {
       failure(error)
@@ -54,24 +56,30 @@ export class App {
   }
 
   private async startServer() {
-    const { success } = this.logger.action('start_server')
-    const app = express()
-    app.use(helmet())
-    app.use(limiter)
-    app.use(json())
-    app.use(urlencoded({ extended: true }))
-    app.use(hpp({ whitelist: ['endpoint'] }))
-    app.use(cors(corsOptions))
-    app.options('*', cors())
-    app.use(logger)
-    app.use('/api', router())
-    const server = app.listen(metadata.port)
-    await new Promise<void>((resolve) => server.on('listening', resolve))
-    success()
-    return server
+    const { success, failure } = this.logger.action('start_server')
+    try {
+      const app = express()
+      app.use(helmet())
+      app.use(limiter)
+      app.use(json())
+      app.use(urlencoded({ extended: true }))
+      app.use(cors({ origin: 'settings.cors.origin' }))
+      app.use(logger)
+      app.use('/api', router())
+      const server = app.listen(metadata.port)
+      await new Promise<void>((resolve) => server.on('listening', resolve))
+      success()
+      return server
+    } catch (error) {
+      throw failure(error)
+    }
   }
 
-  private exit() {
+  private async exit(server: Server) {
+    await new Promise((resolve) => {
+      server.on('close', resolve)
+      server.close()
+    })
     this.logger.info('app_stop')
   }
 }
