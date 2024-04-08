@@ -1,0 +1,73 @@
+{
+  "name": "white-app",
+  "version": "0.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "format": "prettier -w \"{src,tests}/**/*.{ts,tsx}\"",
+    "lint": "eslint \"{src,tests}/**/*.{ts,tsx}\"",
+    "test:unit": "vitest run --coverage",
+    "start:dev": "nodemon -r dotenv/config --inspect=9999 src/index.ts",
+    "version:patch": "fethca-version patch",
+    "version:minor": "fethca-version minor",
+    "version:major": "fethca-version major"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fethca/white-app.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fethca/white-app/issues"
+  },
+  "homepage": "https://github.com/fethca/white-app#readme",
+  "dependencies": {
+    "@fethcat/logger": "^1.0.2",
+    "@fethcat/shared": "^0.0.3",
+    "@fethcat/store": "^0.0.2",
+    "@fethcat/validator": "^0.0.5",
+    "@vitest/coverage-v8": "^1.4.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "envalid": "^8.0.0",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.2.0",
+    "helmet": "^7.1.0",
+    "vitest": "^1.4.0"
+  },
+  "devDependencies": {
+    "@fethcat/eslint-plugin": "^0.0.3",
+    "@fethcat/prettier-config": "^1.0.5",
+    "@fethcat/tests": "^0.0.15",
+    "@fethcat/version": "^0.0.11",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.12.5",
+    "nodemon": "^3.1.0",
+    "prettier": "^3.2.5",
+    "tsx": "^4.7.2",
+    "typescript": "^5.4.4"
+  },
+  "prettier": "@fethcat/prettier-config",
+  "nodemonConfig": {
+    "restartable": "rs",
+    "ignore": [
+      ".git",
+      "node_modules/**/node_modules"
+    ],
+    "execMap": {
+      "ts": "tsx"
+    },
+    "watch": [
+      "src/"
+    ],
+    "ext": "js,json,ts"
+  },
+  "eslintConfig": {
+    "extends": [
+      "plugin:@fethcat/back"
+    ]
+  }
+}
