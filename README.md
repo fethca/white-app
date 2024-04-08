@@ -1,7 +1,20 @@
 # White app
 
+Blank application setup with dependencies and configurations up to date. It provides an express api setup,
+database and redis connexions draft.
+
+## Prerequisites
+
+Before cloning the White app, ensure you have the following prerequisites met:
+
+- Node.js installed on your system
+- pnpm package manager installed
+
 ## How To
 
+- Clone project
+- Remove unecessary dependencies. For example: express, helmet, cors etc. aren't usefull if the app isn't an API
+- Upgrade dependencies to lastest version `pnpm upgrade --latest`.
 - Replace all `white-app` occurences in the project.
 - Delete this how to section
 
