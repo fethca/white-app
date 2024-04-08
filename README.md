@@ -1,7 +1,8 @@
 # White app
 
 Blank application setup with dependencies and configurations up to date. It provides an express api setup,
-database and redis connexions draft.
+database and redis connexions draft, a vitest environement with coverage, github actions and a Dockerfile
+with a Chrome install.
 
 ## Prerequisites
 
