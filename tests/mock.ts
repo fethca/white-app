@@ -1,6 +1,5 @@
 import { MockedLogger } from '@fethcat/logger'
-import { Request, Response } from 'express'
-import { Express, NextFunction } from 'express-serve-static-core'
+import { Express, NextFunction, Request, Response } from 'express'
 import { Server } from 'http'
 
 export function mockServer() {

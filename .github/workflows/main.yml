@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: |
           export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-          tpnpm insall
+          pnpm install
 
       - name: Lint, format & tests
         run: |
