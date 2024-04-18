@@ -2,6 +2,7 @@ import { extractPackageJson } from '@fethcat/shared'
 import { logsValidators, redisValidators, validateEnv } from '@fethcat/validator'
 import { randomBytes } from 'crypto'
 import { num } from 'envalid'
+import mongoose, { QueryOptions } from 'mongoose'
 
 const { name, version } = extractPackageJson()
 
@@ -31,3 +32,9 @@ export const settings = {
 const messages = ['redis_init_store', 'main_job', 'init_db', 'start_server'] as const
 
 export type Message = (typeof messages)[number]
+
+const Query_setOptions = mongoose.Query.prototype.setOptions
+mongoose.Query.prototype.setOptions = function (options: QueryOptions, overwrite?: boolean) {
+  return Query_setOptions.call(this, { ...options, lean: true }, overwrite)
+}
+mongoose.set('strictQuery', true)
