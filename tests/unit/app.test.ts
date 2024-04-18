@@ -112,13 +112,6 @@ describe('initDb', () => {
     expect(success).toHaveBeenCalled()
   })
 
-  it('should log success', async () => {
-    const app = new App()
-    const { success } = mockAction(app['logger'])
-    await app['initDb']('dbUri')
-    expect(success).toHaveBeenCalled()
-  })
-
   it('should log failure and throw', async () => {
     vi.spyOn(mongoose, 'connect').mockRejectedValue(new Error('500'))
     const app = new App()
