@@ -2,8 +2,8 @@ import { MockedLogger, mockAction } from '@fethcat/logger'
 import cors from 'cors'
 import express, { json, urlencoded } from 'express'
 import helmet from 'helmet'
+import mongoose from 'mongoose'
 import { App } from '../../src/app.js'
-import * as utils from '../../src/helpers/utils.js'
 import { limiter } from '../../src/middlewares/limiter.js'
 import { logger } from '../../src/middlewares/logger.js'
 import { router } from '../../src/router.js'
@@ -11,6 +11,7 @@ import { store } from '../../src/services.js'
 import { mockExpress, mockServer } from '../mock.js'
 
 vi.mock('helmet')
+vi.mock('mongoose')
 vi.mock('cors')
 vi.mock('../../src/jobs/MainJob')
 vi.mock('express')
@@ -98,8 +99,17 @@ describe('initRedis', () => {
 })
 
 describe('initDb', () => {
-  beforeEach(() => {
-    vi.spyOn(utils, 'wait').mockImplementation(() => Promise.resolve())
+  it('should connect to database', async () => {
+    const app = new App()
+    await app['initDb']('dbUri')
+    expect(mongoose.connect).toHaveBeenCalledWith('dbUri', { dbName: 'db' })
+  })
+
+  it('should log success', async () => {
+    const app = new App()
+    const { success } = mockAction(app['logger'])
+    await app['initDb']('dbUri')
+    expect(success).toHaveBeenCalled()
   })
 
   it('should log success', async () => {
@@ -110,7 +120,7 @@ describe('initDb', () => {
   })
 
   it('should log failure and throw', async () => {
-    vi.spyOn(utils, 'wait').mockRejectedValue(new Error('500'))
+    vi.spyOn(mongoose, 'connect').mockRejectedValue(new Error('500'))
     const app = new App()
     const { failure } = mockAction(app['logger'])
     await expect(app['initDb']('dbUri')).rejects.toThrow(new Error('500'))

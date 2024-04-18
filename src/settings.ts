@@ -1,14 +1,16 @@
 import { extractPackageJson } from '@fethcat/shared'
-import { logsValidators, redisValidators, validateEnv } from '@fethcat/validator'
+import { logsValidators, mongoValidators, redisValidators, validateEnv } from '@fethcat/validator'
 import { randomBytes } from 'crypto'
-import { num } from 'envalid'
+import { num, str } from 'envalid'
 import mongoose, { QueryOptions } from 'mongoose'
 
 const { name, version } = extractPackageJson()
 
 const env = validateEnv({
+  ...mongoValidators,
   ...logsValidators,
   ...redisValidators,
+  DB_NAME: str(),
   PORT: num({ default: 3000 }),
 })
 
@@ -19,6 +21,10 @@ export const settings = {
   metadata: { app: name, version, port: env.PORT, env: env.APP_STAGE },
   logs: {
     silent: env.LOG_SILENT,
+  },
+  mongo: {
+    dbName: env.DB_NAME,
+    url: env.DB_URL,
   },
   redis: {
     host: env.REDIS_HOST,

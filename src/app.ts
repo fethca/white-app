@@ -3,7 +3,7 @@ import cors from 'cors'
 import express, { json, urlencoded } from 'express'
 import helmet from 'helmet'
 import { Server } from 'http'
-import { wait } from './helpers/utils.js'
+import mongoose from 'mongoose'
 import { MainJob } from './jobs/MainJob.js'
 import { limiter } from './middlewares/limiter.js'
 import { logger } from './middlewares/logger.js'
@@ -44,10 +44,9 @@ export class App {
   private async initDb(dbUri: string) {
     const { success, failure } = this.logger.action('init_db')
     try {
-      // await mongoose.connect(dbUri, { dbName: settings.mongo.dbName })
+      await mongoose.connect(dbUri, { dbName: settings.mongo.dbName })
       // await sequelize.authenticate()
       // await prisma.$connect()
-      await wait(10)
       success()
     } catch (error) {
       failure(error)
