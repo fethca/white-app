@@ -1,7 +1,7 @@
 import { ILogger } from '@fethcat/logger'
 import http from 'http'
 
-declare module 'express' {
+declare module 'express-serve-static-core' {
   export interface Request extends http.IncomingMessage, Express.Request {}
 }
 
