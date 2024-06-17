@@ -49,7 +49,36 @@ jobs:
           key: ${{ secrets.VPS_KEY }}
           port: ${{ secrets.VPS_PORT }}
           script: |
-            if [ "$(docker ps -q --filter "name=white-app")" ]; then docker stop white-app && docker rm white-app; fi
+            # Stopping running containers
+            echo "step: stopping running containers"
+            for container in $(docker ps -q --filter "name=white-app-"); do
+              echo "step: stopping container"
+              docker stop $container
+            done
+            echo "step: stopped running containers"
+
+            # Removing existing containers
+            echo "step: removing existing containers"
+            for container in $(docker ps -a -q --filter "name=white-app-"); do
+              echo "step: removing container"
+              docker rm $container
+            done
+            echo "step: removed existing containers"
+
+            # Removing latest image
+            echo "step: removing latest image"
             if [ "$(docker images -q 'fethca/white-app')" ]; then docker rmi fethca/white-app; fi
+            echo "step: removed latest image"
+
             cd ~/traefik
-            docker-compose up -d --remove-orphans white-app
+            services=$(docker-compose config --services)
+
+            # Starting the services
+            echo "step: starting the services"
+            echo "$services" | while read -r service; do
+              if [[ $service == white-app-* ]]; then
+                echo "step: starting service"
+                docker-compose up --remove-orphans -d $service
+              fi
+            done
+            echo "step: started the services"
